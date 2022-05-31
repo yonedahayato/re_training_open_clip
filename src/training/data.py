@@ -1,4 +1,5 @@
 import ast
+import argparse
 import json
 import logging
 import math
@@ -184,7 +185,7 @@ _SAMPLE_SHUFFLE_SIZE = 5000
 _SAMPLE_SHUFFLE_INITIAL = 1000
 
 
-def get_wds_dataset(args, preprocess_img, is_train, epoch=0):
+def get_wds_dataset(args:argparse.Namespace, preprocess_img, is_train, epoch=0):
     input_shards = args.train_data if is_train else args.val_data
     assert input_shards is not None
 
@@ -326,7 +327,7 @@ def get_dataset_fn(data_path, dataset_type):
         raise ValueError(f"Unsupported dataset type: {dataset_type}")
     
 
-def get_data(args, preprocess_fns, epoch=0):
+def get_data(args:argparse.Namespace, preprocess_fns, epoch=0):
     preprocess_train, preprocess_val = preprocess_fns
     data = {}
 

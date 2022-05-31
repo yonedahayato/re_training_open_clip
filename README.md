@@ -1,3 +1,7 @@
+# 検証用のブランチ
+
+- re_train
+
 # OpenCLIP
 
 [[Paper]](https://arxiv.org/abs/2109.01903) [[Colab]](https://colab.research.google.com/github/mlfoundations/open_clip/blob/master/docs/Interacting_with_open_clip.ipynb)
