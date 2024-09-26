@@ -275,12 +275,14 @@ def parse_args():
     parser.add_argument(
         "--seed", type=int, default=4242, help="Default random seed."
     )
-    args = parser.parse_args()
+
+    # notebook だとエラーが発生するので、修正
+    # args = parser.parse_args()
 
     # If some params are not passed, we use the default values based on model name.
-    default_params = get_default_params(args.model)
-    for name, val in default_params.items():
-        if getattr(args, name) is None:
-            setattr(args, name, val)
+    # default_params = get_default_params(args.model)
+    # for name, val in default_params.items():
+    #     if getattr(args, name) is None:
+    #         setattr(args, name, val)
 
-    return args
+    return parser

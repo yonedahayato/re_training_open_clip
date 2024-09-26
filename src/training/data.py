@@ -1,4 +1,5 @@
 import ast
+import argparse
 import json
 import logging
 import math
@@ -184,11 +185,14 @@ _SAMPLE_SHUFFLE_SIZE = 5000
 _SAMPLE_SHUFFLE_INITIAL = 1000
 
 
-def get_wds_dataset(args, preprocess_img, is_train, epoch=0):
+def get_wds_dataset(args:argparse.Namespace, preprocess_img, is_train, epoch=0):
+    print("== get wds dataset ==")
     input_shards = args.train_data if is_train else args.val_data
     assert input_shards is not None
 
     num_samples, num_shards = get_dataset_size(input_shards)
+    print("num_samples: ", num_samples)
+
     if not num_samples:
         if is_train:
             num_samples = args.train_num_samples
@@ -198,8 +202,11 @@ def get_wds_dataset(args, preprocess_img, is_train, epoch=0):
                     'Please specify via `--train-num-samples` if no dataset length info present.')
         else:
             num_samples = args.val_num_samples or 0  # eval will just exhaust the iterator if not specified
+    print("num_samples: ", num_samples)
 
+    # データセットに対する処理をつなげていく
     pipeline = [wds.SimpleShardList(input_shards)]
+
     # at this point we have an iterator over all the shards
     if is_train:
         pipeline.extend([
@@ -226,6 +233,7 @@ def get_wds_dataset(args, preprocess_img, is_train, epoch=0):
             # at this point, we have an iterator over the shards assigned to each worker
             wds.tarfile_to_samples(handler=log_and_continue),
         ])
+
     pipeline.extend([
         wds.select(filter_no_caption),
         wds.decode("pilrgb", handler=log_and_continue),
@@ -235,7 +243,9 @@ def get_wds_dataset(args, preprocess_img, is_train, epoch=0):
         wds.batched(args.batch_size, partial=not is_train),
     ])
 
+    # データセットへの処理を設置
     dataset = wds.DataPipeline(*pipeline)
+
     if is_train:
         # roll over and repeat a few samples to get same number of full batches on each node
         global_batch_size = args.batch_size * args.world_size
@@ -326,7 +336,7 @@ def get_dataset_fn(data_path, dataset_type):
         raise ValueError(f"Unsupported dataset type: {dataset_type}")
     
 
-def get_data(args, preprocess_fns, epoch=0):
+def get_data(args:argparse.Namespace, preprocess_fns, epoch=0):
     preprocess_train, preprocess_val = preprocess_fns
     data = {}
 
